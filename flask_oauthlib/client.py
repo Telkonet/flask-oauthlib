@@ -654,6 +654,8 @@ class OAuthRemoteApp(object):
                 self.access_token_method
             )
 
+        log.info('Resp: {}'.format(resp))
+
         data = parse_response(resp, content, content_type=self.content_type)
         if resp.code not in (200, 201):
             raise OAuthException(
