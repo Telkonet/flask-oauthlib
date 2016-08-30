@@ -624,27 +624,11 @@ class OAuthRemoteApp(object):
 
     def handle_oauth2_response(self):
         """Handles an oauth2 authorization response."""
-
-        # Remove the 'code' argument from current URL
-        oauth_redir_tuple = urlparse(request.url)
-        query_args = [
-            arg_pair for arg_pair in parse_qsl(oauth_redir_tuple.query)
-            if arg_pair[0] != 'code'
-        ]
-        oauth_redir = urlunparse(
-            oauth_redir_tuple[0:4] +
-            (urlencode(query_args, doseq=True),) +
-            oauth_redir_tuple[5:]
-        )
-
-        # TODO: Just fetch from current_app.config?
-        log.debug('redirect_uri: {}'.format(oauth_redir))
-
         client = self.make_client()
         remote_args = {
             'code': request.args.get('code'),
             'client_secret': self.consumer_secret,
-            'redirect_uri': oauth_redir
+            'redirect_uri': current_app.config['OAUTH_CALLBACK_URL']
         }
         log.debug('Prepare oauth2 remote args %r', remote_args)
         remote_args.update(self.access_token_params)
@@ -672,9 +656,6 @@ class OAuthRemoteApp(object):
                 'Unsupported access_token_method: %s' %
                 self.access_token_method
             )
-
-        log.debug('Resp: {}'.format(resp))
-
         data = parse_response(resp, content, content_type=self.content_type)
         if resp.code not in (200, 201):
             raise OAuthException(
