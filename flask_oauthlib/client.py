@@ -637,6 +637,9 @@ class OAuthRemoteApp(object):
             oauth_redir_tuple[5:]
         )
 
+        # TODO: Just fetch from current_app.config?
+        log.debug('redirect_uri: {}'.format(oauth_redir))
+
         client = self.make_client()
         remote_args = {
             'code': request.args.get('code'),
