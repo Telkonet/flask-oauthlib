@@ -523,7 +523,6 @@ class OAuthRemoteApp(object):
                 # state can be function for generate a random string
                 state = state()
 
-            session['%s_oauthredir' % self.name] = callback
             url = client.prepare_request_uri(
                 self.expand_url(self.authorize_url),
                 redirect_uri=callback,
@@ -623,12 +622,11 @@ class OAuthRemoteApp(object):
 
     def handle_oauth2_response(self):
         """Handles an oauth2 authorization response."""
-
         client = self.make_client()
         remote_args = {
             'code': request.args.get('code'),
             'client_secret': self.consumer_secret,
-            'redirect_uri': session.get('%s_oauthredir' % self.name)
+            'redirect_uri': current_app.config['OAUTH_CALLBACK_URL']
         }
         log.debug('Prepare oauth2 remote args %r', remote_args)
         remote_args.update(self.access_token_params)
@@ -656,7 +654,6 @@ class OAuthRemoteApp(object):
                 'Unsupported access_token_method: %s' %
                 self.access_token_method
             )
-
         data = parse_response(resp, content, content_type=self.content_type)
         if resp.code not in (200, 201):
             raise OAuthException(
@@ -680,7 +677,6 @@ class OAuthRemoteApp(object):
 
         # free request token
         session.pop('%s_oauthtok' % self.name, None)
-        session.pop('%s_oauthredir' % self.name, None)
         return data
 
     def authorized_handler(self, f):
