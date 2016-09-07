@@ -19,13 +19,11 @@ from werkzeug import url_quote, url_decode, url_encode
 from werkzeug import parse_options_header, cached_property
 from .utils import to_bytes
 try:
-    from urllib import urlencode
-    from urlparse import parse_qsl, urljoin, urlparse, urlunparse
+    from urlparse import urljoin
     import urllib2 as http
 except ImportError:
     from urllib import request as http
     from urllib.parse import urljoin
-    from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 log = logging.getLogger('flask_oauthlib')
 
 
